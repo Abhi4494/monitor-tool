@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Main Website",
+    "type": "WEBSITE",
+    "url": "https://www.procurementresource.com"
+  },
+  {
+    "name": "Admin API",
+    "type": "API",
+    "url": "https://adminportal-new.procurementresource.com/api/v1/checkstatus"
+  },
+  {
+    "name": "Website (Browser)",
+    "type": "BROWSER",
+    "url": "https://www.procurementresource.com"
+  },
+  {
+    "name": "Dev Admin API",
+    "type": "API",
+    "url": "https://api.claight.net/procurement_resource_live/api/v1/checkstatus"
+  }
+]

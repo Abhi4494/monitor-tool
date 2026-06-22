@@ -1,0 +1,31 @@
+{
+  "name": "monitor-server",
+  "version": "1.0.0",
+  "description": "Website monitoring server (Playwright + Cron + Email + Socket.IO)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/database/seed.js",
+    "seed:fresh": "node src/database/seed.js --fresh",
+    "create-admin": "node src/scripts/createAdmin.js",
+    "test-teams": "node src/scripts/testTeams.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.18.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.22.5",
+    "node-cron": "^4.4.1",
+    "nodemailer": "^9.0.1",
+    "playwright": "^1.61.0",
+    "sequelize": "^6.37.8",
+    "socket.io": "^4.8.3"
+  }
+}
