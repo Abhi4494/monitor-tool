@@ -7,6 +7,8 @@ async function sendTeamsAlert(data) {
   const url = process.env.TEAMS_WEBHOOK_URL;
   if (!url) return; // disabled
 
+  const recovered = ["UP", "OK"].includes(data.status);
+
   const card = {
     type: "message",
     attachments: [
@@ -19,12 +21,12 @@ async function sendTeamsAlert(data) {
           body: [
             {
               type: "Container",
-              style: "attention", // red banner
+              style: recovered ? "good" : "attention", // green vs red banner
               bleed: true,
               items: [
                 {
                   type: "TextBlock",
-                  text: `🚨 ${data.name || data.type} is ${data.status}`,
+                  text: `${recovered ? "✅" : "🚨"} ${data.name || data.type} is ${data.status}`,
                   weight: "Bolder",
                   size: "Large",
                   wrap: true,

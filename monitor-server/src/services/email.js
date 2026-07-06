@@ -19,12 +19,18 @@ async function sendMail(data, recipients) {
     return;
   }
 
+  const recovered = ["UP", "OK"].includes(data.status);
+  const label = data.name || data.type;
+
   await transporter.sendMail({
     from: process.env.FROM_EMAIL || process.env.MAIL_USER,
     to: to.join(","),
-    subject: `🚨 Website Monitor Alert — ${data.name || data.type} ${data.status}`,
+    subject: recovered
+      ? `✅ Recovered — ${label} is ${data.status}`
+      : `🚨 Website Monitor Alert — ${label} is ${data.status}`,
     html: `
-      <h2>Problem Detected</h2>
+      <h2>${recovered ? "✅ Recovered" : "🚨 Problem Detected"}</h2>
+      <p><b>Name:</b> ${label}</p>
       <p><b>Type:</b> ${data.type}</p>
       <p><b>Target:</b> ${data.target || "-"}</p>
       <p><b>Status:</b> ${data.status}</p>
