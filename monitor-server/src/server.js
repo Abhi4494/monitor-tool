@@ -28,6 +28,9 @@ const io = new Server(server, {
   cors: { origin: origins },
 });
 
+// make the Socket.IO instance reachable from routes (req.app.get("io"))
+app.set("io", io);
+
 app.use(cors({ origin: origins }));
 app.use(express.json());
 

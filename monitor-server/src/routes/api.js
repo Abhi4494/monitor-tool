@@ -1,6 +1,7 @@
 const express = require("express");
 const { Op } = require("sequelize");
 const CheckResult = require("../database/models/CheckResult");
+const Target = require("../database/models/Target");
 
 const router = express.Router();
 
@@ -9,15 +10,22 @@ const FAILURE_STATUSES = ["DOWN", "FAILED"];
 // Latest result per check type — powers the "Live Status" cards on first load.
 router.get("/status", async (req, res) => {
   try {
-    const rows = await CheckResult.findAll({
-      order: [["createdAt", "DESC"]],
-      limit: 300,
-    });
+    const [rows, targets] = await Promise.all([
+      CheckResult.findAll({ order: [["createdAt", "DESC"]], limit: 300 }),
+      Target.findAll({ where: { active: true } }),
+    ]);
+
+    // Only show cards for targets that still exist. History keeps results under
+    // the old URL after a target is renamed/edited/deleted; without this filter
+    // those stale rows appear as extra "ghost" cards (e.g. a duplicate name
+    // pointing at a URL you no longer monitor).
+    const allowed = new Set(targets.map((t) => `${t.type}::${t.url}`));
 
     // latest result per distinct target (type + url)
     const latest = {};
     for (const row of rows) {
       const key = `${row.type}::${row.target}`;
+      if (!allowed.has(key)) continue; // skip results for targets no longer active
       if (!latest[key]) latest[key] = row;
     }
 

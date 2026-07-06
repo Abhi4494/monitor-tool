@@ -1,6 +1,17 @@
 const express = require("express");
 const Target = require("../database/models/Target");
 const { requireAuth } = require("../middleware/auth");
+const { runSingleCheck } = require("../scheduler");
+
+// Fire a one-off check for a just-added/edited target so its Live Status card
+// updates right away. Fire-and-forget: never block or fail the HTTP response.
+function checkNow(req, target) {
+  if (!target.active) return; // paused targets aren't checked
+  const io = req.app.get("io");
+  runSingleCheck(target, io).catch((e) =>
+    console.error("Immediate check failed:", e.message)
+  );
+}
 
 const router = express.Router();
 const VALID_TYPES = ["WEBSITE", "API", "BROWSER"];
@@ -44,6 +55,7 @@ router.post("/", async (req, res) => {
       active: req.body.active !== false,
     });
     res.status(201).json(target);
+    checkNow(req, target); // show the new target's card immediately
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -69,6 +81,7 @@ router.put("/:id", async (req, res) => {
       active: req.body.active !== undefined ? req.body.active : target.active,
     });
     res.json(target);
+    checkNow(req, target); // refresh the card immediately after an edit
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

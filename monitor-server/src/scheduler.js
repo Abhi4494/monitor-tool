@@ -154,6 +154,25 @@ async function runChecks(io) {
   }
 }
 
+// Check ONE target right now and broadcast it — used when a target is added or
+// edited from the dashboard, so its card appears immediately instead of after
+// the next cron cycle. Persists + broadcasts only; alerting stays with the
+// regular cycle so adding a target never fires an email on its own.
+async function runSingleCheck(target, io) {
+  const result = await runChecker(target);
+  let saved;
+  try {
+    saved = await CheckResult.create(result);
+  } catch (e) {
+    console.error("DB save failed (immediate check):", e.message);
+  }
+  const { emails, ...clean } = result;
+  const payload = saved ? saved.toJSON() : { ...clean, createdAt: new Date() };
+  if (io) io.emit("check:result", payload);
+  console.log(`[${result.name || result.type}] (immediate) ${result.status}`);
+  return payload;
+}
+
 function startScheduler(io) {
   const expression = process.env.CHECK_CRON || "*/5 * * * *";
 
@@ -184,4 +203,4 @@ function startScheduler(io) {
   console.log("Scheduler started:", expression);
 }
 
-module.exports = { startScheduler, runChecks };
+module.exports = { startScheduler, runChecks, runSingleCheck };
